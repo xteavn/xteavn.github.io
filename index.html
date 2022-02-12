@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>GCRM - Motel manager</title>
+  <meta name="description" content="">
+  <meta name="author" content="Xtea">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <!-- <link href='//fonts.googleapis.com/css?family=Raleway:400,300,600' rel='stylesheet' type='text/css'> -->
+  <link href="https://fonts.googleapis.com/css?family=Quicksand:300,400,500&amp;subset=vietnamese" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/c134188180.js" crossorigin="anonymous"></script>
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="css/skeleton.css">
+  <link rel="stylesheet" href="css/custom.css">
+
+  <!-- Scripts
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="../dist/images/favicon.png">
+
+</head>
+<body>
+  <div class="section all-leads">
+    <div class="container">
+      <h3 class="section-heading"><b>GCRM - Motel manager</b></h3>
+      <p class="section-description">Hệ thống quản lý phòng trọ/ nhà nghỉ/ khách sạn với backend Google Sheet.</p>   
+      <p>Toàn bộ dữ liệu được lưu trữ và xữ lý trên 
+      <a href="https://docs.google.com/spreadsheets/d/1Jtp3XdXHu_5yemMjbQDrGnkukMlPJ2r8JRDifKkb7uI/edit?usp=sharing" class="button" target="_blank">Google Sheets</a>
+	   với Google App Script.</p></br>
+	  <p>
+        Make by <a href="https://fb.me/xteavn" target="_blank">[Xtea]</a> 
+         from <a href="https://www.xtea.vn" target="_blank">Xtea.vn</a>
+		 , template from github.
+      </p>
+	</div>
+  </div>
+  <div class="section all-leads">
+    <div class="container">
+      <h3 class="section-heading">Danh sách khách hàng</h3>
+      <p class="section-description"></br></p>
+      <div class="row" id="section-all-leads">
+        <div class="three columns">
+          <select class="u-full-width" id="search-column">
+            <option value="id">Mã giao dịch</option>
+            <option value="name">Họ tên</option>
+            <option value="phone">Số điện thoại</option>
+            <option value="email">Email</option>
+            <option value="product">Sản phẩm</option>
+            <option value="result">Kết quả</option>
+          </select>
+        </div>
+        <div class="three columns">
+          <input class="u-full-width" type="text" placeholder="tìm kiếm ..." id="search-input">
+        </div>
+        <div class="three columns">
+          <a class="button" id="search-btn">Search</a>
+        </div>
+        <div class="three columns">
+          <p id="search-notification"></p>
+        </div>
+      </div>
+      <div class="row" style="text-align: left;">
+        <div class="six columns">
+          <a class="button" id="prev-btn">Previous</a>
+          <a class="button" id="next-btn">Next</a>
+          <a class="button" id="new-lead-btn">New Lead</a>
+        </div>
+        <div class="six columns">
+          
+        </div>
+      </div>
+      <div class="row">
+        <h5 id="all-leads-notice"></h5>
+      </div>
+      <br>
+      <div class="row" id="all-leads-table">
+        <table class="u-full-width">
+          <thead>
+            <tr>
+              <th>Mã khách hàng</th>
+              <th>Họ Tên</th>
+              <th>Số điện thoại</th>
+              <th>Loại phòng</th>
+              <th>Hóa đơn</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>ID001</td>
+              <td>Xtea</td>
+              <td>0824280516</td>
+              <td>Excel và sửa lỗi chính tả</td>
+              <td>200.000</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="section lead-details">
+    <div class="container">
+      <h3 class="section-heading" id="section-lead-details">Tương tác và cập nhật trạng thái khách hàng</h3>
+      <p class="section-description"></br></p>
+      <a class="button" id = 'call-from-customer-form' href="#">Gọi điện</a>
+      <a class="button" id='send-email-customer-form' href="#">Gửi email</a>
+      <a class="button confirm-update-lead" href="javascript:void(0);">Xác nhận thông tin</a>
+      <a class="button" id='go-back' href="javascript:void(0);">Trở lại</a>
+      <br><br>
+      <div class="row">
+        <h5 id="lead-details-notice">Xin mời chọn một khách hàng từ <a href="#section-all-leads">danh sách trên</a></h5>
+      </div>
+      <form id="customer-form">
+        <div class="row">
+          <div class="four columns">
+            <label for="customer-name">Tên khách hàng</label>
+            <input class="u-full-width" type="text" placeholder="Thanh Nguyễn" id="customer-name" readonly="readonly">
+          </div>
+          <div class="four columns">
+            <label for="customer-phone">Số điện thoại</label>
+            <input class="u-full-width" type="text" placeholder="012345567" id="customer-phone" readonly="readonly">
+          </div>
+          <div class="four columns">
+            <label for="customer-email">Email</label>
+            <input class="u-full-width" type="email" placeholder="listen@hocexcel.online" id="customer-email" readonly="readonly">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="six columns">
+            <label for="order-date">Ngày check-in</label>
+            <input class="u-full-width" type="text" placeholder="23/04/2018" id="order-date" readonly="readonly">
+          </div>
+          <div class="six columns">
+            <label for="last-activity-timestamp">Lần tương tác trước</label>
+            <input class="u-full-width" type="text" placeholder="18/01/2018" id="last-activity-timestamp" readonly="readonly">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="six columns">
+            <label for="product-name">Loại phòng</label>
+            <input class="u-full-width" type="text" placeholder="Awesome product" id="product-name" readonly="readonly">
+          </div>
+          <div class="six columns">
+            <label for="product-price">Hóa đơn</label>
+            <input class="u-full-width" type="text" placeholder="600.000" id="product-price" readonly="readonly">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="four columns">
+            <label for="call-1">Số ngày lưu trú</label>
+            <input class="u-full-width" type="number" placeholder="6" id="call-1">
+          </div>
+		  <div class="four columns">
+            <label for="call-3">Số ngày thuê xe</label>
+            <input class="u-full-width" type="number" placeholder="4" id="call-3">
+          </div>
+          <div class="four columns">
+            <label for="status-3">Loại xe</label>
+            <select class="u-full-width" id="status-3">
+              <option value=""></option>
+              <option value="Nhấc máy">Xe số</option>
+              <option value="Không nhấc máy">Xe tay ga</option> 
+            </select>
+          </div>
+		</div>
+		<div class="row">
+          <div class="four columns">
+            <label for="status-1">Tiền cọc</label>
+			<input class="u-full-width" type="number" placeholder="0" id="status-1">
+          </div>
+		  <div class="four columns">
+            <label for="call-2">Phụ thu</label>
+            <input class="u-full-width" type="number" placeholder="0" id="call-2">
+          </div>
+          <div class="four columns">
+            <label for="status-2">Khuyến mãi</label>
+            <input class="u-full-width" type="number" placeholder="0" id="status-2">
+          </div>
+		</div>
+        <div class="row">
+          <div class="four columns">
+            <label for="note-1">Ghi chú</label>
+            <textarea class="u-full-width" type="text" placeholder="" id="note-1"></textarea>
+          </div>
+          <div class="four columns">
+            <label for="call-result">Trạng thái</label>
+            <select class="u-full-width" id="call-result">
+              <option value=""></option>
+              <option value="Success">Đã thanh toán</option>
+              <option value="Not Success">Chưa thanh toán</option>
+            </select>
+          </div>
+          <div class="four columns">
+            <label>Xác nhận thông tin</label>
+            <a class="button button-primary u-full-width confirm-update-lead" href="javascript:void(0);">Xác nhận thông tin</a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <a href="#" id="back-to-top-btn" title="Go to top">Top</a>
+
+  <script src="js/app2.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', app.init);
+  </script>
+</body>
+</html>
