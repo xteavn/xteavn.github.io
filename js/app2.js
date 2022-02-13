@@ -311,10 +311,10 @@ const app = function () {
     page.productPrice.value = numberWithCommas(Number(data.price));
 
     page.call1.value = data.call_1;
-    page.status1.value = numberWithCommas(Number(data.status_1));
+    page.status1.value = Number(data.status_1);
 
-    page.call2.value = numberWithCommas(Number(data.call_2));
-    page.status2.value = numberWithCommas(Number(data.status_2));
+    page.call2.value = Number(data.call_2);
+    page.status2.value = Number(data.status_2);
 
     page.call3.value = data.call_3;
     page.status3.value = data.status_3;
@@ -411,4 +411,5 @@ const app = function () {
   return {
     init: init
   };
+
 }();
