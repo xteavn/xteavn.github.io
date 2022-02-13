@@ -305,8 +305,8 @@ const app = function () {
     page.customerPhone.value = data.phone;
     page.customerEmail.value = data.email;
 
-    page.orderDate.value = data.timestamp;
-    page.lastActivityDate.value = data.last_time;
+	try{page.orderDate.value = data.timestamp.split(".")[0];}catch{page.orderDate.value = data.timestamp.split("Z")[0];};
+    try{page.lastActivityDate.value = data.last_time.split(".")[0];}catch{page.lastActivityDate.value = data.last_time.split("Z")[0];};
     page.productName.value = data.product;
     page.productPrice.value = numberWithCommas(Number(data.price));
 
