@@ -19,8 +19,8 @@
             let myIframe = document.getElementById("myIframe");
             let url_string = "https://script.google.com/macros/s/AKfycbxJlgkOeZ4sbisMnUp2dYhlE2I1kaD6tG9yXSGqfaU/dev";
             let queryString = window.location.search;
-            const urlParams = new URLSearchParams(queryString);
-            const id = urlParams.get('id');
+            let urlParams = new URLSearchParams(queryString);
+            let id = urlParams.get('id');
             let URL = url_string+"?id="+id;
             myIframe.src = URL;
         </script>
