@@ -11,9 +11,18 @@
 </head>
 <body style="margin:0px;padding:0px;overflow:hidden">
     <iframe
-        src="https://script.google.com/macros/s/AKfycbwaPVqDoDSYUgQ2r4-BwXdX0lgTwUou3hxf8qkbbld9K5PI7Z8g4PzMca9ufsG8xCnNsQ/exec"
+        id="myIframe"
         frameborder="0"
         style="overflow:hidden;overflow-x:hidden;overflow-y:hidden;height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px"
         height="100%" width="100%"></iframe>
+    <script>
+            let myIframe = document.getElementById("myIframe");
+            let url_string = "https://script.google.com/macros/s/AKfycbxJlgkOeZ4sbisMnUp2dYhlE2I1kaD6tG9yXSGqfaU/dev";
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            const id = urlParams.get('id')
+            let URL = url_string+"?id="+id;
+            myIframe.src = URL;
+        </script>
 </body>
 </html>
