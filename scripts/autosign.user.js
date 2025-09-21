@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name        Tự động ký HIS Chợ Rẫy
+// @name        Tự động ký HIS
 // @namespace   http://www.xtea.vn/
 // @version     1.1
-// @description Tự động ký tờ điều trị và phiếu máu trên HIS Chợ Rẫy
+// @description Tự động ký tờ điều trị và phiếu máu trên HIS
 // @author      Xtea
 // @icon        https://www.xtea.vn/favicon.ico
 // @match       https://his.choray.vn*
@@ -44,8 +44,6 @@
         const usernameDiv = document.querySelector('div.username');
         if (usernameDiv) {
             targetName = usernameDiv.textContent.trim();
-        } else {
-            targetName = 'Phan Nguyễn Vũ Linh';
         }
 
         const buttonText = 'Xác nhận ký BÁC SĨ ĐIỀU TRỊ';
