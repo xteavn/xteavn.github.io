@@ -4,6 +4,7 @@
 // @version     1.1
 // @description Tự động ký tờ điều trị và phiếu máu trên HIS Chợ Rẫy
 // @author      Xtea
+// @icon        https://www.xtea.vn/favicon.ico
 // @match       https://his.choray.vn*
 // @grant       none
 // @run-at      document-start
