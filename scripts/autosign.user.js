@@ -1,12 +1,14 @@
 // ==UserScript==
 // @name        Tự động ký HIS Chợ Rẫy
-// @namespace   http://tampermonkey.net/
-// @version     1.0
-// @description Tự động ký các loại tờ điều trị khác nhau trên HIS Chợ Rẫy
-// @author      Bạn
+// @namespace   http://www.xtea.vn/
+// @version     1.1
+// @description Tự động ký tờ điều trị và phiếu máu trên HIS Chợ Rẫy
+// @author      Xtea
 // @match       https://his.choray.vn*
 // @grant       none
 // @run-at      document-start
+// @downloadURL https://app.xtea.vn/scripts/autosign.user.js
+// @updateURL   https://app.xtea.vn/scripts/autosign.user.js
 // ==/UserScript==
 
 (function() {
