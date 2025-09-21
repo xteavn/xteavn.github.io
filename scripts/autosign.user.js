@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Tự động ký HIS
 // @namespace   http://www.xtea.vn/
-// @version     1.1
+// @version     1.2
 // @description Tự động ký tờ điều trị và phiếu máu trên HIS
 // @author      Xtea
 // @icon        https://www.xtea.vn/favicon.ico
@@ -20,8 +20,6 @@
 
     // --- XỬ LÝ CHO TRƯỜNG HỢP 1: Tờ điều trị EMR_BA077 ---
     if (currentUrl.includes('EMR_BA077')) {
-
-        console.log("Đang thực thi script cho EMR_BA077...");
 
         // Chức năng 1: Xóa tham số 'lichSuKyId' khỏi URL
         const param1 = '&lichSuKyId=';
@@ -57,14 +55,14 @@
 
             nameElements.forEach(nameElement => {
                 if (nameElement.textContent.trim().includes(targetName)) {
-                    console.log("Tìm thấy tên bác sĩ:", targetName);
+                   // console.log("Tìm thấy tên bác sĩ:", targetName);
                     const signSpan = nameElement.closest('.sign');
                     if (signSpan) {
                         const confirmButton = signSpan.querySelector('button');
                         if (confirmButton && confirmButton.textContent.trim().includes(buttonText)) {
-                            console.log("Tìm thấy nút xác nhận. Đang nhấp.");
+                            //console.log("Tìm thấy nút xác nhận. Đang nhấp.");
                             confirmButton.click();
-                            console.log("Đã click vào nút xác nhận.");
+                            //console.log("Đã click vào nút xác nhận.");
                             found = true;
                         }
                     }
@@ -95,9 +93,6 @@
 
     // --- XỬ LÝ CHO TRƯỜNG HỢP 2: Tờ điều trị EMR_BA111 ---
     else if (currentUrl.includes('EMR_BA111')) {
-
-        console.log("Đang thực thi script cho EMR_BA111...");
-
         const targetButtonText = 'Xác nhận ký BÁC SĨ ĐIỀU TRỊ';
         let checkTimer = null;
 
@@ -108,9 +103,9 @@
 
             buttons.forEach(button => {
                 if (button.textContent.trim().includes(targetButtonText)) {
-                    console.log("Tìm thấy nút ký. Đang nhấp.");
+                    //console.log("Tìm thấy nút ký. Đang nhấp.");
                     button.click();
-                    console.log("Đã click vào nút ký.");
+                    //console.log("Đã click vào nút ký.");
                     found = true;
                 }
             });
