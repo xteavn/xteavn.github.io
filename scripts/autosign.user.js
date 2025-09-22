@@ -5,7 +5,7 @@
 // @description Tự động ký tờ điều trị và phiếu máu trên HIS
 // @author      Xtea
 // @icon        https://www.xtea.vn/favicon.ico
-// @match       https://his.choray.vn*
+// @match       his.choray.vn*
 // @grant       none
 // @run-at      document-start
 // @downloadURL https://app.xtea.vn/scripts/autosign.user.js
