@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Tự động ký HIS
 // @namespace   http://www.xtea.vn/
-// @version     1.4
+// @version     1.5
 // @description Tự động ký tờ điều trị và phiếu máu trên HIS
 // @author      Xtea
 // @icon        https://www.xtea.vn/favicon.ico
@@ -35,11 +35,9 @@
         }
         return false;
     }
-
-    // Check if the current URL is EMR_BA077
+    
     const isBA077 = window.location.href.includes('EMR_BA077');
 
-    // Only remove the URL parameter if it is an EMR_BA077 page
     if (isBA077) {
         if (removeUrlParameter()) {
             return;
@@ -47,29 +45,34 @@
     }
 
     // === CHỨC NĂNG 2: TỰ ĐỘNG TÌM VÀ NHẤN NÚT KÝ ===
-    const targetName = isBA077 ? getDoctorName() : '';
     const buttonText = 'Xác nhận ký BÁC SĨ ĐIỀU TRỊ';
 
     let checkTimer = null;
+    let targetName = '';
 
-    function getDoctorName() {
-        // Find doctor's name from the first <div class="username"> tag
+    // Function to get the doctor's name only once
+    function initializeDoctorName() {
         const usernameDiv = document.querySelector('div.username');
         if (usernameDiv) {
-            console.log("Đã lấy tên bác sĩ từ trang:", usernameDiv.textContent.trim());
-            return usernameDiv.textContent.trim();
+            targetName = usernameDiv.textContent.trim();
+            console.log("Đã lấy tên bác sĩ từ trang:", targetName);
+        } else {
+            console.log("Không tìm thấy thẻ <div class='username'>. Sẽ không tiến hành ký tự động.");
         }
-        console.log("Không tìm thấy thẻ <div class='username'>. Sử dụng tên mặc định.");
-        // Use a default name if the tag is not found
-        return 'Phan Nguyễn Vũ Linh';
     }
+    
+    // Call the function to get the name once at the start
+    initializeDoctorName();
 
     function checkAndClickButton(observer) {
         console.log("Đang tìm kiếm nút ký...");
         let found = false;
 
         if (isBA077) {
-            if (!targetName) return; // Stop if name is not found
+            if (!targetName) {
+                // Stop if name was not found on the initial check
+                return;
+            }
             console.log("Đang tìm kiếm nút ký cho:", targetName);
             const nameElements = document.querySelectorAll('b');
             nameElements.forEach(nameElement => {
@@ -105,7 +108,6 @@
         }
     }
 
-    // Use MutationObserver to watch for page changes
     const observer = new MutationObserver((mutationsList, obs) => {
         if (checkTimer) {
             clearTimeout(checkTimer);
@@ -120,7 +122,6 @@
         subtree: true
     });
 
-    // Initial check
     checkAndClickButton();
 
 })();
