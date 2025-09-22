@@ -35,9 +35,11 @@
         }
         return false;
     }
-    
+
+    // Kiểm tra xem URL hiện tại có phải là EMR_BA077 không
     const isBA077 = window.location.href.includes('EMR_BA077');
 
+    // Chỉ xóa tham số URL nếu là trang EMR_BA077
     if (isBA077) {
         if (removeUrlParameter()) {
             return;
@@ -50,34 +52,28 @@
     let checkTimer = null;
     let targetName = '';
 
-    // Function to get the doctor's name only once
-    function initializeDoctorName() {
-        const usernameDiv = document.querySelector('div.username');
-        if (usernameDiv) {
-            targetName = usernameDiv.textContent.trim();
-            console.log("Đã lấy tên bác sĩ từ trang:", targetName);
-        } else {
-            console.log("Không tìm thấy thẻ <div class='username'>. Sẽ không tiến hành ký tự động.");
-        }
-    }
-    
-    // Call the function to get the name once at the start
-    initializeDoctorName();
-
     function checkAndClickButton(observer) {
-        console.log("Đang tìm kiếm nút ký...");
         let found = false;
 
         if (isBA077) {
+            // Đầu tiên, thử lấy tên bác sĩ nếu chưa tìm thấy
             if (!targetName) {
-                // Stop if name was not found on the initial check
-                return;
+                const usernameDiv = document.querySelector('div.username');
+                if (usernameDiv) {
+                    targetName = usernameDiv.textContent.trim();
+                    console.log("Đã tìm thấy tên bác sĩ từ trang:", targetName);
+                } else {
+                    console.log("Đang chờ thẻ tên bác sĩ (.username) xuất hiện...");
+                    // Nếu không tìm thấy tên, quay lại và đợi lần kiểm tra MutationObserver tiếp theo
+                    return;
+                }
             }
+
             console.log("Đang tìm kiếm nút ký cho:", targetName);
             const nameElements = document.querySelectorAll('b');
             nameElements.forEach(nameElement => {
                 if (nameElement.textContent.trim().includes(targetName)) {
-                    console.log("Tìm thấy tên bác sĩ:", targetName);
+                    console.log("Đã tìm thấy tên bác sĩ trên trang ký.");
                     const signSpan = nameElement.closest('.sign');
                     if (signSpan) {
                         const confirmButton = signSpan.querySelector('button');
@@ -91,6 +87,7 @@
                 }
             });
         } else { // EMR_BA111
+            console.log("Đang tìm kiếm nút ký trên trang EMR_BA111...");
             const buttons = document.querySelectorAll('button');
             buttons.forEach(button => {
                 if (button.textContent.trim().includes(buttonText)) {
@@ -108,6 +105,7 @@
         }
     }
 
+    // Sử dụng MutationObserver để theo dõi thay đổi trên trang
     const observer = new MutationObserver((mutationsList, obs) => {
         if (checkTimer) {
             clearTimeout(checkTimer);
@@ -122,6 +120,7 @@
         subtree: true
     });
 
+    // Kiểm tra ban đầu
     checkAndClickButton();
 
 })();
