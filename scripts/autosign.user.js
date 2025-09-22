@@ -8,7 +8,7 @@
 // @match       https://his.choray.vn/*
 // @match       http://his.choray.vn/*
 // @grant       none
-// @run-at      document-start
+// @run-at      document-idle
 // @downloadURL https://app.xtea.vn/scripts/autosign.user.js
 // @updateURL   https://app.xtea.vn/scripts/autosign.user.js
 // ==/UserScript==
