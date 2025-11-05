@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Tự động ký HIS
 // @namespace   http://www.xtea.vn/
-// @version     1.5
+// @version     1.7
 // @description Tự động ký tờ điều trị và phiếu máu trên HIS
 // @author      Xtea
 // @icon        https://www.xtea.vn/favicon.ico
@@ -14,113 +14,134 @@
 // ==/UserScript==
 
 (function() {
-    'use strict';
+    'use strict';
 
-    // === CHỨC NĂNG 1: TỰ ĐỘNG XÓA THAM SỐ KHỎI URL ===
-    function removeUrlParameter() {
-        const url = window.location.href;
-        const param1 = '&lichSuKyId=';
-        const param2 = '?lichSuKyId=';
-        let newUrl = '';
+    // Độ trễ giữa các lần click (3000ms = 3 giây)
+    const CLICK_DELAY_MS = 2000;
+    const buttonText = 'Xác nhận ký BÁC SĨ ĐIỀU TRỊ';
 
-        if (url.includes(param1)) {
-            newUrl = url.substring(0, url.indexOf(param1)) + url.substring(url.indexOf(param1) + param1.length);
-        } else if (url.includes(param2)) {
-            newUrl = url.substring(0, url.indexOf(param2)) + url.substring(url.indexOf(param2) + param2.length);
-        }
+    // Hàm tạo độ trễ
+    function delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
 
-        if (newUrl && newUrl !== url) {
-            window.location.replace(newUrl);
-            return true;
-        }
-        return false;
-    }
+    // === CHỨC NĂNG 1: TỰ ĐỘNG XÓA THAM SỐ KHỎI URL (CHỈ ÁP DỤNG CHO EMR_BA077) ===
+    function removeUrlParameter() {
+        const url = window.location.href;
+        const param1 = '&lichSuKyId=';
+        const param2 = '?lichSuKyId=';
+        let newUrl = '';
 
-    // Kiểm tra xem URL hiện tại có phải là EMR_BA077 không
-    const isBA077 = window.location.href.includes('EMR_BA077');
+        if (url.includes(param1)) {
+            newUrl = url.substring(0, url.indexOf(param1));
+        } else if (url.includes(param2)) {
+            newUrl = url.substring(0, url.indexOf(param2));
+        }
 
-    // Chỉ xóa tham số URL nếu là trang EMR_BA077
-    if (isBA077) {
-        if (removeUrlParameter()) {
-            return;
-        }
-    }
+        if (newUrl && newUrl !== url) {
+            window.location.replace(newUrl);
+            return true;
+        }
+        return false;
+    }
 
-    // === CHỨC NĂNG 2: TỰ ĐỘNG TÌM VÀ NHẤN NÚT KÝ ===
-    const buttonText = 'Xác nhận ký BÁC SĨ ĐIỀU TRỊ';
+    // Kiểm tra các trang cần tự động ký
+    const isBA077 = window.location.href.includes('EMR_BA077');
+    const isBA111OrBA235 = window.location.href.includes('EMR_BA111') || window.location.href.includes('EMR_BA235');
 
-    let checkTimer = null;
-    let targetName = '';
+    // Chỉ xóa tham số URL nếu là trang EMR_BA077
+    if (isBA077) {
+        if (removeUrlParameter()) {
+            return; // Ngừng thực thi nếu đã chuyển hướng
+        }
+    }
 
-    function checkAndClickButton(observer) {
-        let found = false;
+    // === CHỨC NĂNG 2: TỰ ĐỘNG TÌM VÀ NHẤN NÚT KÝ (CÓ ĐỘ TRỄ) ===
+    let checkTimer = null;
+    let targetName = '';
 
-        if (isBA077) {
-            // Đầu tiên, thử lấy tên bác sĩ nếu chưa tìm thấy
-            if (!targetName) {
-                const usernameDiv = document.querySelector('div.username');
-                if (usernameDiv) {
-                    targetName = usernameDiv.textContent.trim();
-                    console.log("Đã tìm thấy tên bác sĩ từ trang:", targetName);
-                } else {
-                    console.log("Đang chờ thẻ tên bác sĩ (.username) xuất hiện...");
-                    // Nếu không tìm thấy tên, quay lại và đợi lần kiểm tra MutationObserver tiếp theo
-                    return;
-                }
+    async function checkAndClickButton(observer) {
+        const buttonsToClick = [];
+
+        if (isBA077) {
+            // Logic thu thập nút cho EMR_BA077 (Tờ điều trị)
+            if (!targetName) {
+                const usernameDiv = document.querySelector('div.username');
+                if (usernameDiv) {
+                    targetName = usernameDiv.textContent.trim();
+                    console.log("EMR_BA077: Đã tìm thấy tên bác sĩ từ trang:", targetName);
+                } else {
+                    console.log("EMR_BA077: Đang chờ thẻ tên bác sĩ (.username) xuất hiện...");
+                    return false; // Chưa tìm thấy tên, chờ lần kiểm tra tiếp theo
+                }
+            }
+
+            console.log("EMR_BA077: Đang tìm kiếm nút ký cho:", targetName);
+            const nameElements = document.querySelectorAll('b');
+            nameElements.forEach(nameElement => {
+                if (nameElement.textContent.trim().includes(targetName)) {
+                    const signSpan = nameElement.closest('.sign');
+                    if (signSpan) {
+                        const confirmButton = signSpan.querySelector('button');
+                        if (confirmButton && confirmButton.textContent.trim().includes(buttonText)) {
+                            buttonsToClick.push(confirmButton);
+                        }
+                    }
+                }
+            });
+        } else if (isBA111OrBA235) {
+            // Logic thu thập nút cho EMR_BA111/EMR_BA235
+            console.log("Đang tìm kiếm nút ký trên trang EMR_BA111/EMR_BA235...");
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => {
+                if (button.textContent.trim().includes(buttonText)) {
+                    buttonsToClick.push(button);
+                }
+            });
+        }
+
+        // --- XỬ LÝ NHẤP NÚT CÓ ĐỘ TRỄ ---
+        if (buttonsToClick.length > 0) {
+            console.log(`Tìm thấy ${buttonsToClick.length} nút ký. Bắt đầu ký tự động với độ trễ ${CLICK_DELAY_MS / 1000} giây.`);
+
+            // Dùng vòng lặp for...of để sử dụng await, đảm bảo thứ tự
+            for (const button of buttonsToClick) {
+                console.log("Tìm thấy nút ký. Đang tiến hành nhấp.");
+                button.click();
+                console.log(`Đã click. Chờ ${CLICK_DELAY_MS / 1000} giây trước lần nhấp tiếp theo...`);
+                await delay(CLICK_DELAY_MS);
             }
 
-            console.log("Đang tìm kiếm nút ký cho:", targetName);
-            const nameElements = document.querySelectorAll('b');
-            nameElements.forEach(nameElement => {
-                if (nameElement.textContent.trim().includes(targetName)) {
-                    console.log("Đã tìm thấy tên bác sĩ trên trang ký.");
-                    const signSpan = nameElement.closest('.sign');
-                    if (signSpan) {
-                        const confirmButton = signSpan.querySelector('button');
-                        if (confirmButton && confirmButton.textContent.trim().includes(buttonText)) {
-                            console.log("Tìm thấy nút xác nhận. Đang tiến hành nhấp.");
-                            confirmButton.click();
-                            console.log("Đã click vào nút xác nhận.");
-                            found = true;
-                        }
-                    }
-                }
-            });
-        } else { // EMR_BA111
-            console.log("Đang tìm kiếm nút ký trên trang EMR_BA111...");
-            const buttons = document.querySelectorAll('button');
-            buttons.forEach(button => {
-                if (button.textContent.trim().includes(buttonText)) {
-                    console.log("Tìm thấy nút ký. Đang tiến hành nhấp.");
-                    button.click();
-                    console.log("Đã click vào nút ký.");
-                    found = true;
-                }
-            });
+            console.log("Đã hoàn thành tất cả các lần click. Ngắt kết nối MutationObserver.");
+            // Ngắt kết nối Observer sau khi chuỗi hành động hoàn tất
+            if (observer) {
+                observer.disconnect();
+            }
+            return true;
         }
 
-        if (found && observer) {
-            console.log("Đã hoàn thành. Ngắt kết nối MutationObserver.");
-            observer.disconnect();
-        }
-    }
+        return false;
+    }
 
-    // Sử dụng MutationObserver để theo dõi thay đổi trên trang
-    const observer = new MutationObserver((mutationsList, obs) => {
-        if (checkTimer) {
-            clearTimeout(checkTimer);
-        }
-        checkTimer = setTimeout(() => {
-            checkAndClickButton(obs);
-        }, 500);
-    });
+    // Sử dụng MutationObserver để theo dõi thay đổi trên trang (các phần tử có thể được tải chậm)
+    const observer = new MutationObserver((mutationsList, obs) => {
+        if (checkTimer) {
+            clearTimeout(checkTimer);
+        }
+        // Đặt timeout nhỏ để tránh lặp quá nhanh, tối ưu hiệu suất.
+        // Gọi hàm async checkAndClickButton.
+        checkTimer = setTimeout(() => {
+            checkAndClickButton(obs);
+        }, 2000);
+    });
 
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
+    // Bắt đầu theo dõi body của trang
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
 
-    // Kiểm tra ban đầu
-    checkAndClickButton();
+    // Kiểm tra ban đầu phòng trường hợp các phần tử đã sẵn sàng ngay từ đầu
+    checkAndClickButton(observer);
 
 })();
