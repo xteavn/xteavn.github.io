@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Tự động ký HIS
 // @namespace   http://www.xtea.vn/
-// @version     1.7
+// @version     1.8
 // @description Tự động ký tờ điều trị và phiếu máu trên HIS
 // @author      Xtea
 // @icon        https://www.xtea.vn/favicon.ico
@@ -18,7 +18,7 @@
 
     // Độ trễ giữa các lần click (3000ms = 3 giây)
     const CLICK_DELAY_MS = 2000;
-    const buttonText = 'Xác nhận ký BÁC SĨ ĐIỀU TRỊ';
+    const buttonText = 'xác nhận ký bác sĩ điều trị';
 
     // Hàm tạo độ trễ
     function delay(ms) {
@@ -83,7 +83,7 @@
                     const signSpan = nameElement.closest('.sign');
                     if (signSpan) {
                         const confirmButton = signSpan.querySelector('button');
-                        if (confirmButton && confirmButton.textContent.trim().includes(buttonText)) {
+                        if (confirmButton && confirmButton.textContent.trim().toLowerCase().includes(buttonText)) {
                             buttonsToClick.push(confirmButton);
                         }
                     }
@@ -94,7 +94,7 @@
             console.log("Đang tìm kiếm nút ký trên trang EMR_BA111/EMR_BA235...");
             const buttons = document.querySelectorAll('button');
             buttons.forEach(button => {
-                if (button.textContent.trim().includes(buttonText)) {
+                if (button.textContent.trim().toLowerCase().includes(buttonText)) {
                     buttonsToClick.push(button);
                 }
             });
