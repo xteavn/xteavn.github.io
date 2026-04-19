@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Tự động ký HIS
 // @namespace   http://www.xtea.vn/
-// @version     1.8
+// @version     2.0
 // @description Tự động ký tờ điều trị và phiếu máu trên HIS
 // @author      Xtea
 // @icon        https://www.xtea.vn/favicon.ico
@@ -19,42 +19,20 @@
     // Độ trễ giữa các lần click (3000ms = 3 giây)
     const CLICK_DELAY_MS = 2000;
     const buttonText = 'xác nhận ký bác sĩ điều trị';
+    const originalTitle = 'Phiếu ký';
+
+    function setStatus(emoji) {
+        document.title = `${emoji} ${originalTitle}`;
+    }
 
     // Hàm tạo độ trễ
     function delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    // === CHỨC NĂNG 1: TỰ ĐỘNG XÓA THAM SỐ KHỎI URL (CHỈ ÁP DỤNG CHO EMR_BA077) ===
-    function removeUrlParameter() {
-        const url = window.location.href;
-        const param1 = '&lichSuKyId=';
-        const param2 = '?lichSuKyId=';
-        let newUrl = '';
-
-        if (url.includes(param1)) {
-            newUrl = url.substring(0, url.indexOf(param1));
-        } else if (url.includes(param2)) {
-            newUrl = url.substring(0, url.indexOf(param2));
-        }
-
-        if (newUrl && newUrl !== url) {
-            window.location.replace(newUrl);
-            return true;
-        }
-        return false;
-    }
-
     // Kiểm tra các trang cần tự động ký
     const isBA077 = window.location.href.includes('EMR_BA077');
-    const isBA111OrBA235 = window.location.href.includes('EMR_BA111') || window.location.href.includes('EMR_BA235');
-
-    // Chỉ xóa tham số URL nếu là trang EMR_BA077
-    if (isBA077) {
-        if (removeUrlParameter()) {
-            return; // Ngừng thực thi nếu đã chuyển hướng
-        }
-    }
+    const isBA111OrBA235 = window.location.href.includes('EMR_BA111') || window.location.href.includes('EMR_BA235') || window.location.href.includes('EMR_BA002.2');
 
     // === CHỨC NĂNG 2: TỰ ĐỘNG TÌM VÀ NHẤN NÚT KÝ (CÓ ĐỘ TRỄ) ===
     let checkTimer = null;
@@ -64,6 +42,7 @@
         const buttonsToClick = [];
 
         if (isBA077) {
+            setStatus('🔵');
             // Logic thu thập nút cho EMR_BA077 (Tờ điều trị)
             if (!targetName) {
                 const usernameDiv = document.querySelector('div.username');
@@ -92,12 +71,13 @@
         } else if (isBA111OrBA235) {
             // Logic thu thập nút cho EMR_BA111/EMR_BA235
             console.log("Đang tìm kiếm nút ký trên trang EMR_BA111/EMR_BA235...");
-            const buttons = document.querySelectorAll('button');
-            buttons.forEach(button => {
-                if (button.textContent.trim().toLowerCase().includes(buttonText)) {
-                    buttonsToClick.push(button);
-                }
-            });
+            for (const button of document.querySelectorAll('button')) {
+                const text = button.textContent.trim().toLowerCase();
+                if (text.includes(buttonText) || text.includes('trình ký trưởng khoa')) {
+                    buttonsToClick.push(button);
+                    break; // Dừng ngay lập tức khi tìm thấy nút đầu tiên
+                };
+            };
         }
 
         // --- XỬ LÝ NHẤP NÚT CÓ ĐỘ TRỄ ---
@@ -115,12 +95,14 @@
             console.log("Đã hoàn thành tất cả các lần click. Ngắt kết nối MutationObserver.");
             // Ngắt kết nối Observer sau khi chuỗi hành động hoàn tất
             if (observer) {
+                await delay(10000);
                 observer.disconnect();
             }
+            setStatus('✅');
             return true;
         }
-
-        return false;
+        if (isBA077||isBA111OrBA235) setStatus('🔴');
+        return false;
     }
 
     // Sử dụng MutationObserver để theo dõi thay đổi trên trang (các phần tử có thể được tải chậm)
@@ -128,11 +110,11 @@
         if (checkTimer) {
             clearTimeout(checkTimer);
         }
-        // Đặt timeout nhỏ để tránh lặp quá nhanh, tối ưu hiệu suất.
+        // Đặt timeout để tránh lặp quá nhanh, tối ưu hiệu suất.
         // Gọi hàm async checkAndClickButton.
         checkTimer = setTimeout(() => {
             checkAndClickButton(obs);
-        }, 2000);
+        }, 3000);
     });
 
     // Bắt đầu theo dõi body của trang
