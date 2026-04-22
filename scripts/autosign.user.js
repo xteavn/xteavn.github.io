@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Tự động ký HIS
 // @namespace   http://www.xtea.vn/
-// @version     2.0
+// @version     2.1
 // @description Tự động ký tờ điều trị và phiếu máu trên HIS
 // @author      Xtea
 // @icon        https://www.xtea.vn/favicon.ico
@@ -98,10 +98,12 @@
                 await delay(10000);
                 observer.disconnect();
             }
+            observer = null;
             setStatus('✅');
             return true;
         }
-        if (isBA077||isBA111OrBA235) setStatus('🔴');
+        else if (observer && (isBA077 || isBA111OrBA235)) setStatus('🔴');
+        if (!observer) setStatus('✅');
         return false;
     }
 
@@ -110,7 +112,7 @@
         if (checkTimer) {
             clearTimeout(checkTimer);
         }
-        // Đặt timeout để tránh lặp quá nhanh, tối ưu hiệu suất.
+        // Đặt timeout nhỏ để tránh lặp quá nhanh, tối ưu hiệu suất.
         // Gọi hàm async checkAndClickButton.
         checkTimer = setTimeout(() => {
             checkAndClickButton(obs);
@@ -124,6 +126,6 @@
     });
 
     // Kiểm tra ban đầu phòng trường hợp các phần tử đã sẵn sàng ngay từ đầu
-    checkAndClickButton(observer);
+    //checkAndClickButton(observer);
 
 })();
