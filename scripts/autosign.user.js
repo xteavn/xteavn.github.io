@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Tự động ký HIS
 // @namespace   http://www.xtea.vn/
-// @version     2.1
+// @version     2.2
 // @description Tự động ký tờ điều trị và phiếu máu trên HIS
 // @author      Xtea
 // @icon        https://www.xtea.vn/favicon.ico
@@ -20,6 +20,7 @@
     const CLICK_DELAY_MS = 2000;
     const buttonText = 'xác nhận ký bác sĩ điều trị';
     const originalTitle = 'Phiếu ký';
+    let signed = false;
 
     function setStatus(emoji) {
         document.title = `${emoji} ${originalTitle}`;
@@ -86,9 +87,7 @@
 
             // Dùng vòng lặp for...of để sử dụng await, đảm bảo thứ tự
             for (const button of buttonsToClick) {
-                console.log("Tìm thấy nút ký. Đang tiến hành nhấp.");
                 button.click();
-                console.log(`Đã click. Chờ ${CLICK_DELAY_MS / 1000} giây trước lần nhấp tiếp theo...`);
                 await delay(CLICK_DELAY_MS);
             }
 
@@ -98,12 +97,12 @@
                 await delay(10000);
                 observer.disconnect();
             }
-            observer = null;
+            signed = true;
             setStatus('✅');
             return true;
         }
-        else if (observer && (isBA077 || isBA111OrBA235)) setStatus('🔴');
-        if (!observer) setStatus('✅');
+        else if (!signed && (isBA077 || isBA111OrBA235)) setStatus('🔴');
+        if (signed) setStatus('✅');
         return false;
     }
 
